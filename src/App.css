@@ -1,0 +1,264 @@
+:root {
+  --washi: #f3e9d2;
+  --sumi: #1f1b16;
+  --shu: #b0302a;
+  --line: #c9b994;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  color: var(--sumi);
+  background: var(--washi);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --washi: #2a251d;
+    --sumi: #ece3cf;
+    --line: #5a4f3c;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--washi);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tool-group {
+  display: flex;
+  gap: 4px;
+}
+
+.tool-group button[aria-pressed="false"] {
+  background: transparent;
+  color: inherit;
+  border-color: var(--line);
+}
+
+.emaki-canvas.mode-brush {
+  cursor: crosshair;
+}
+
+.emaki-canvas.mode-pan {
+  cursor: grab;
+}
+
+.editor {
+  max-width: 720px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0;
+  letter-spacing: 0.3em;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+input:not([type="range"]),
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+button {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+  cursor: pointer;
+}
+
+.status {
+  margin: 0;
+}
+
+.error {
+  color: var(--shu);
+}
+
+/* --- 素材ライブラリと作業領域 --- */
+.workspace {
+  display: flex;
+  align-items: flex-start;
+}
+
+.stage {
+  flex: 1;
+  min-width: 0;
+}
+
+.asset-library {
+  width: 168px;
+  flex: none;
+  box-sizing: border-box;
+  border-right: 1px solid var(--line);
+  padding: 8px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+.asset-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.asset-tabs button {
+  flex: 1;
+  padding: 4px 2px;
+  font-size: 12px;
+  background: transparent;
+  color: inherit;
+  border-color: var(--line);
+}
+
+.asset-tabs button[aria-selected="true"] {
+  background: var(--shu);
+  color: #fff;
+  border-color: var(--shu);
+}
+
+.asset-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.asset-item {
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+  background: rgba(255, 252, 240, 0.5);
+  color: inherit;
+  border-color: var(--line);
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-ghost {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  opacity: 0.85;
+  z-index: 10;
+}
+
+.stamp-actions {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.emaki-canvas:focus {
+  outline: none;
+}
+
+.emaki-canvas.mode-select {
+  cursor: default;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.kofu-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+
+/* --- 自作スタンプ --- */
+.user-import {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.import-button {
+  display: block;
+  text-align: center;
+  padding: 6px;
+  border: 1px solid var(--shu);
+  border-radius: 4px;
+  color: var(--shu);
+  cursor: pointer;
+}
+
+.import-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.import-form fieldset {
+  border: 1px solid var(--line);
+  padding: 4px 6px;
+}
+
+.import-form fieldset label {
+  flex-direction: row;
+  align-items: center;
+}
+
+.asset-cell {
+  position: relative;
+}
+
+.asset-cell .asset-item {
+  width: 100%;
+}
+
+.asset-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  padding: 0 5px;
+  font-size: 11px;
+  line-height: 16px;
+  border-radius: 50%;
+}

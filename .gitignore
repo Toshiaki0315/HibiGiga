@@ -1,0 +1,57 @@
+# === 安全なGit管理のための.gitignore (.gitignore) ===
+
+# --- OS / IDE 関連 ---
+.DS_Store
+Thumbs.db
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Node.js / フロントエンド ---
+node_modules/
+/dist
+/out
+.env
+.env.*
+!.env.example
+.eslintcache
+.yarn/
+.pnpm-debug.log
+.npm
+
+# --- Rust / Tauri 開発 ---
+/src-tauri/target/
+/src-tauri/bi_temp/
+/src-tauri/gen/
+
+# 開発時のキャッシュ・テストデータ・カバレッジ結果
+cov/
+*.lcov
+htmlcov/
+target/
+cargo-tarpaulin/
+coverage/
+.nyc_output
+
+# --- 個人データ（絶対にアップロードしない） ---
+# 取り込んだスタンプ画像（個人の写真を含みうる）と日記は、通常は OS のアプリ用データフォルダ
+# (macOS: ~/Library/Application Support/com.hibigiga.app/) に保存されリポジトリには入らない。
+# 誤ってプロジェクト直下に置いた場合の安全策として除外する。
+# (先頭の / でリポジトリ直下に限定。src-tauri/src/stamps/ などのソースは対象外)
+/stamps/
+/user_stamps/
+/diaries/
+
+# --- 秘匿情報・認証情報（絶対にアップロードしない） ---
+*.key
+*.pem
+*.pfx
+*.keystore
+.env*.local
+credentials.json
+secrets.*
