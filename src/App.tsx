@@ -7,7 +7,7 @@ import { EmakiStore, defaultApi } from "./emaki/store";
 import { UserAssetStore } from "./assets/userAssets";
 import { setUserAssetResolver } from "./emaki/stampRender";
 import type { BrushSettings } from "./emaki/stroke";
-import { LIBRARY_WIDTH } from "./ui";
+import { LIBRARY_OPEN_KEY, LIBRARY_WIDTH } from "./ui";
 import "./App.css";
 
 export interface AppProps {
@@ -21,6 +21,23 @@ const MODES: [CanvasMode, string][] = [
   ["pan", "移動"],
   ["select", "選択"],
 ];
+
+/** 素材ペインの開閉状態を読む (未保存・読めない・不正な値なら開いた状態) */
+function readLibraryOpen(): boolean {
+  try {
+    return localStorage.getItem(LIBRARY_OPEN_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+
+function writeLibraryOpen(open: boolean): void {
+  try {
+    localStorage.setItem(LIBRARY_OPEN_KEY, String(open));
+  } catch {
+    // 保存できない環境では、今回の起動中だけ状態を保つ
+  }
+}
 
 function useWindowWidth(): number {
   const [width, setWidth] = useState(window.innerWidth);
@@ -46,6 +63,11 @@ export default function App({ initialDate }: AppProps) {
   const [mode, setMode] = useState<CanvasMode>("brush");
   const [brush, setBrush] = useState<BrushSettings>({ size: 14, bleed: 0.3, dryness: 0.3 });
   const canvasRef = useRef<EmakiCanvasHandle>(null);
+  const [libraryOpen, setLibraryOpen] = useState(readLibraryOpen);
+  const toggleLibrary = () => {
+    writeLibraryOpen(!libraryOpen);
+    setLibraryOpen(!libraryOpen);
+  };
 
   const { history } = snapshot;
 
@@ -135,6 +157,15 @@ export default function App({ initialDate }: AppProps) {
     <main className="app">
       <header className="toolbar">
         <h1>日々戯画</h1>
+        <button
+          type="button"
+          className="library-toggle"
+          aria-expanded={libraryOpen}
+          aria-controls="asset-library"
+          onClick={toggleLibrary}
+        >
+          素材
+        </button>
         <div className="tool-group" role="group" aria-label="道具">
           {MODES.map(([m, label]) => (
             <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>
@@ -165,17 +196,19 @@ export default function App({ initialDate }: AppProps) {
       </header>
 
       <div className="workspace">
-        <AssetLibrary
-          userAssets={userAssets}
-          onDrop={(id, x, y) => afterPlace(canvasRef.current!.dropAsset(id, x, y))}
-          onPlace={(id) => afterPlace(canvasRef.current!.placeAssetAtCenter(id))}
-        />
+        {libraryOpen && (
+          <AssetLibrary
+            userAssets={userAssets}
+            onDrop={(id, x, y) => afterPlace(canvasRef.current!.dropAsset(id, x, y))}
+            onPlace={(id) => afterPlace(canvasRef.current!.placeAssetAtCenter(id))}
+          />
+        )}
         <div className="stage">
           <EmakiCanvas
             ref={canvasRef}
             store={store}
             userAssets={userAssets}
-            width={Math.max(width - LIBRARY_WIDTH, 0)}
+            width={Math.max(width - (libraryOpen ? LIBRARY_WIDTH : 0), 0)}
             height={CANVAS_HEIGHT}
             mode={mode}
             brush={brush}

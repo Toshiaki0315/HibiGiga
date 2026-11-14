@@ -169,7 +169,7 @@ export function AssetLibrary({
     : CATEGORIES;
 
   return (
-    <aside className="asset-library" aria-label="素材">
+    <aside id="asset-library" className="asset-library" aria-label="素材">
       <div role="tablist" className="asset-tabs">
         {tabs.map((c) => (
           <button key={c.id} type="button" role="tab" aria-selected={tab === c.id} onClick={() => setTab(c.id)}>

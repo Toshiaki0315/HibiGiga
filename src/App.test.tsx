@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { mockIPC } from "@tauri-apps/api/mocks";
 import App from "./App";
-import { LIBRARY_WIDTH } from "./ui";
+import { LIBRARY_OPEN_KEY, LIBRARY_WIDTH } from "./ui";
 
 type Entry = { date: string; text: string; canvas?: unknown; updatedAt?: string };
 
@@ -336,5 +336,69 @@ describe("App", () => {
     await waitFor(() => expect(saveCalls(spy)).toHaveLength(1));
     expect(saveCalls(spy)[0].canvas.stamps[0]).toMatchObject({ assetId: `user:${stamp.id}` });
     expect(canvas()).toHaveClass("mode-select");
+  });
+
+  describe("library pane toggle (P1-P5)", () => {
+    const toggle = () => screen.getByRole("button", { name: "素材" });
+    const library = () => screen.queryByRole("complementary", { name: "素材" });
+
+    it("P1: starts open with the canvas narrowed by the pane", async () => {
+      setupBackend();
+      render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      expect(toggle()).toHaveAttribute("aria-expanded", "true");
+      expect(library()).toBeInTheDocument();
+      expect(canvas().style.width).toBe(`${window.innerWidth - LIBRARY_WIDTH}px`);
+    });
+
+    it("P2: the button hides the pane and widens the canvas, and shows it again", async () => {
+      setupBackend();
+      render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      fireEvent.click(toggle());
+      expect(toggle()).toHaveAttribute("aria-expanded", "false");
+      expect(library()).not.toBeInTheDocument();
+      expect(canvas().style.width).toBe(`${window.innerWidth}px`);
+      fireEvent.click(toggle());
+      expect(library()).toBeInTheDocument();
+      expect(canvas().style.width).toBe(`${window.innerWidth - LIBRARY_WIDTH}px`);
+    });
+
+    it("P3: remembers the closed state across restarts", async () => {
+      setupBackend();
+      const first = render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      fireEvent.click(toggle());
+      first.unmount();
+      render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      expect(toggle()).toHaveAttribute("aria-expanded", "false");
+      expect(library()).not.toBeInTheDocument();
+    });
+
+    it("P4: keeps working when storage throws", async () => {
+      const get = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+        throw new Error("denied");
+      });
+      const set = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("denied");
+      });
+      setupBackend();
+      render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      expect(library()).toBeInTheDocument();
+      fireEvent.click(toggle());
+      expect(library()).not.toBeInTheDocument();
+      get.mockRestore();
+      set.mockRestore();
+    });
+
+    it("P5: ignores a corrupted stored value", async () => {
+      localStorage.setItem(LIBRARY_OPEN_KEY, "maybe");
+      setupBackend();
+      render(<App initialDate="2026-11-15" />);
+      await screen.findByText("まだ記されておらぬ");
+      expect(library()).toBeInTheDocument();
+    });
   });
 });
