@@ -25,7 +25,14 @@ pnpm install
 
 ### 2. 開発サーバーの起動 (Live Reload)
 ```bash
-pnpm tauri dev
+make dev
+```
+（`pnpm tauri dev` と同じです。依存パッケージが未インストールなら先に `pnpm install` が走ります。）
+
+### 3. アプリのビルド (macOS)
+```bash
+make app   # .app を作成 → src-tauri/target/release/bundle/macos/
+make dmg   # .dmg を作成 (.app も残る) → src-tauri/target/release/bundle/dmg/
 ```
 
 ---
